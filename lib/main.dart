@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
         tmp.contains("perime") ||
         tmp.contains("peremption")) {
       result =
-          "Un prduit périmé ? regarder notre charte des produits \"dépassé\" pour en savoir plus sur comment les dlc sont établies !";
+          "Un produit périmé ? regarder notre charte des produits \"dépassé\" pour en savoir plus sur comment les dlc sont établies !";
     }
     if (tmp.contains("salut") ||
         tmp.contains("bonjour") ||
