@@ -39,13 +39,11 @@ class _MyHomePageState extends State<MyHomePage> {
     _text.clear();
   }
 
-  /// This has to happen only once per app
   void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
 
-  /// Each time to start a speech recognition session
   void _startListening() async {
     _lastWords = '';
     myLock = true;
@@ -53,17 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
   void _stopListening() async {
     await _speechToText.stop();
     setState(() {});
   }
 
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
       _lastWords = result.recognizedWords;
@@ -85,11 +77,55 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  String entireQuestion(String question) {
+    if (question.contains("depuis quand") &&
+        question.contains("conservateur") &&
+        (question.contains("sans") || question.contains("aucun"))) {
+      return ("Depuis 20 ans, nous veillons à ne pas ajouter de conservateurs dans nos plats cuisinés dès que les recettes nous le permettent. Mais c'est depuis 2002 que nous travaillons avec nos fournisseurs pour supprimer les conservateurs dans les ingrédients. Aujourd'hui 94% de nos plats cuisinés ne contiennent aucun conservateur. Ne soyez pas timide, allez plutôt les tester par vous-mêmes.");
+    }
+    if (question.contains("manger") && question.contains("moins")) {
+      if (question.contains("salé")) {
+        return ("Il est possible de s'habituer progressivement à manger moins salé en jouant avec les épices (poivre, curry, curcuma, clous de girofle...) et les herbes aromatiques (thym, ciboulette...). Et pour être sûr de ne pas dépasser la juste dose, nous vous conseillons de saler en fin de cuisson plutôt qu'au début ! Ces efforts paieront rapidement car il suffit de 3 semaines pour que les papilles s'habituent à un goût moins salé, juste le temps pour elles de se regénérer.");
+      }
+    }
+    return ("");
+  }
+
   String getAnswer(String question) {
-    if (question == "oui") return ("fi");
-    if (question.toLowerCase().contains("jambon"))
-      return ("Nos produits sont controlés et certifié français :)");
-    return ("Désolé je n'ai pas compris votre question. Pouvez vous répéter ?");
+    String tmp = question.toLowerCase();
+    String result = entireQuestion(tmp);
+    if (result != "") return result;
+    if (tmp == "oui") result = "fi";
+    if (tmp == "aide" || (tmp.contains("j") && tmp.contains("aide"))) {
+      result = "Aide:\nPoser vos questions en les tapant / dictant";
+    }
+    if (tmp.contains("respect") || tmp.contains("souci")) {
+      if (tmp.contains("anima")) {
+        result =
+            "La priorité numéro 1 de nos équipes est de les traiter avec respect.";
+      }
+      if (tmp.contains("planète") ||
+          tmp.contains("planete") ||
+          tmp.contains("environ")) {
+        result =
+            "Bien évidemment, notre environnement doit être préservé à tout prix !";
+      }
+    }
+    if (tmp.contains("périmé") ||
+        tmp.contains("perime") ||
+        tmp.contains("peremption")) {
+      result =
+          "Un prduit périmé ? regarder notre charte des produits \"dépassé\" pour en savoir plus sur comment les dlc sont établies !";
+    }
+    if (tmp.contains("salut") ||
+        tmp.contains("bonjour") ||
+        tmp == "yo" ||
+        tmp.contains("yo ")) {
+      result = "Bonjour, en quoi puis-je vous aider ?";
+    }
+    return (result == ""
+        ? "Désolé je n'ai pas compris, veuillez répéter"
+        : result);
   }
 
   _scrollToEnd() async {
@@ -211,8 +247,12 @@ class AllQandATextFields extends StatelessWidget {
           padding: index % 2 == 0
               ? const EdgeInsets.fromLTRB(10, 5, 10, 5)
               : const EdgeInsets.fromLTRB(0, 5, 0, 5),
-          child: Text(index % 2 == 0 ? actQandA : ''),
-          decoration: getBox(index % 2 == 0),
+          child: Container(
+            child: Text(index % 2 == 0 ? actQandA : ''),
+            padding: const EdgeInsets.all(8),
+            decoration: getBox(index % 2 == 0),
+          ),
+          alignment: Alignment.centerLeft,
         ),
         Container(
           width: (index % 2 != 0
@@ -222,17 +262,17 @@ class AllQandATextFields extends StatelessWidget {
           padding: index % 2 != 0
               ? const EdgeInsets.fromLTRB(10, 5, 10, 5)
               : const EdgeInsets.fromLTRB(0, 5, 0, 5),
-          child: Text(index % 2 == 0 ? '' : actQandA),
+          child: Container(
+            child: Text(index % 2 != 0 ? actQandA : ''),
+            padding: const EdgeInsets.all(8),
+            decoration: getBox(index % 2 != 0),
+          ),
           alignment: Alignment.centerRight,
-          decoration: getBox(index % 2 != 0),
         ),
         Container(
           width: 10,
         ),
       ],
-      // Container(
-      // child: Text(actQandA),
-      // decoration: BoxDecoration(border: Border.all()),
     );
   }
 }
