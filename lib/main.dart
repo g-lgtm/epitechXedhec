@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(),
       theme: ThemeData(
         bottomSheetTheme: const BottomSheetThemeData(
-            backgroundColor: Color.fromRGBO(245, 245, 245, 0)),
+            backgroundColor: Color.fromRGBO(235, 235, 235, 0.96)),
       ),
     );
   }
@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
+    // _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
 
