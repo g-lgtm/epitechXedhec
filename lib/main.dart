@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -10,8 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Fleury Michon',
       home: MyHomePage(),
+      theme: ThemeData(
+        bottomSheetTheme: const BottomSheetThemeData(
+            backgroundColor: Color.fromRGBO(245, 245, 245, 0)),
+      ),
     );
   }
 }
@@ -52,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _stopListening() async {
+    sleep(const Duration(seconds: 1));
     await _speechToText.stop();
     setState(() {});
   }
@@ -80,7 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
   String entireQuestion(String question) {
     if (question.contains("depuis quand") &&
         question.contains("conservateur") &&
-        (question.contains("sans") || question.contains("aucun"))) {
+        (question.contains("sans") ||
+            question.contains("aucun") ||
+            question.contains("retir"))) {
       return ("Depuis 20 ans, nous veillons à ne pas ajouter de conservateurs dans nos plats cuisinés dès que les recettes nous le permettent. Mais c'est depuis 2002 que nous travaillons avec nos fournisseurs pour supprimer les conservateurs dans les ingrédients. Aujourd'hui 94% de nos plats cuisinés ne contiennent aucun conservateur. Ne soyez pas timide, allez plutôt les tester par vous-mêmes.");
     }
     if (question.contains("manger") && question.contains("moins")) {
@@ -138,15 +147,37 @@ class _MyHomePageState extends State<MyHomePage> {
     WidgetsBinding.instance!.addPostFrameCallback((_) => _scrollToEnd());
     return Scaffold(
         appBar: AppBar(
-          title: const Text('HamBot'),
-          centerTitle: true,
-        ),
+            title: SizedBox(
+              width: MediaQuery.of(context).size.width / 5 * 3,
+              child: Image.asset("assets/logo-fleury-michon.png"),
+            ),
+            centerTitle: true,
+            backgroundColor: const Color.fromRGBO(0, 129, 62, 1)),
+        backgroundColor: const Color.fromRGBO(245, 245, 245, 0.96),
         body: ListView(
           controller: _scrollController,
           children: [
             SingleChildScrollView(
                 child: Column(
               children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.fromLTRB(15, 4, 0, 4),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                      color: const Color.fromRGBO(0, 129, 62, 1),
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10)),
+                      boxShadow: kElevationToShadow[4]),
+                  child: const Text(
+                    'HamBot',
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Color.fromRGBO(140, 60, 0, 1),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
                 ..._getTexts(allQandA),
                 const SizedBox(
                   height: 50,
@@ -186,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: _text.text == ""
                         ? (_speechToText.isNotListening
                             ? _startListening
-                            : null)
+                            : _stopListening)
                         : _emplaceText,
                     icon: Icon(_text.text == ""
                         ? (_speechToText.isNotListening
@@ -195,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : Icons.send)),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
-                    color: Colors.blue[200]),
+                    color: const Color.fromRGBO(0, 160, 62, 0.9)),
               )
             ],
           ),
@@ -206,14 +237,14 @@ class _MyHomePageState extends State<MyHomePage> {
 List<Widget> _getTexts(allQandA) {
   List<Widget> allQandATextFields = [];
   for (int i = allQandA.length - 1; i >= 0; i--) {
-    allQandATextFields.add(Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Row(
-        children: [
-          Expanded(child: AllQandATextFields(i, allQandA[i])),
-        ],
-      ),
-    ));
+    allQandATextFields.add(
+      AllQandATextFields(i, allQandA[i]),
+    );
+    i % 2 == 0
+        ? allQandATextFields.add(const SizedBox(
+            height: 10,
+          ))
+        : 0;
   }
   return allQandATextFields;
 }
@@ -226,7 +257,7 @@ class AllQandATextFields extends StatelessWidget {
   BoxDecoration getBox(bool isSentence) {
     BoxDecoration result = BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.grey.withOpacity(0.1));
+        color: const Color.fromRGBO(227, 227, 227, 0.9));
     if (isSentence) return result;
     result = const BoxDecoration(border: Border());
     return result;
