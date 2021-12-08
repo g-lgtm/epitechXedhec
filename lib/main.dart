@@ -38,18 +38,18 @@ class _MyHomePageState extends State<MyHomePage> {
   bool myLock = false;
   int isReclam = 0;
   static List<String> allQandA = [
-    "Rhttps://www.fleurymichon.fr/manger-mieux/recettes/salade-de-poulet-cesar-ou-filet-de-poulet",
-    "RJe vous propose une salade césar avec des émincées de poulet grillées Fleury Michon",
-    "Qje dirais légumes",
-    "RVous êtes plus: \n- Légume\n- Féculents\n- Les deux",
-    "RUne dernière question",
-    "QPoulet",
-    "RVous êtes plus poulet ou dinde ?",
-    "Qnon",
-    "RMangez-vous halal ?",
-    "Qje suis plus entrée froide",
-    "RVous êtes plus:\n- Plats chaud\n- Entrée froide",
-    "QJe voudrais une idée gourmande",
+    // "Rhttps://www.fleurymichon.fr/manger-mieux/recettes/salade-de-poulet-cesar-ou-filet-de-poulet",
+    // "RJe vous propose une salade césar avec des émincées de poulet grillées Fleury Michon",
+    // "Qje dirais légumes",
+    // "RVous êtes plus: \n- Légume\n- Féculents\n- Les deux",
+    // "RUne dernière question",
+    // "QPoulet",
+    // "RVous êtes plus poulet ou dinde ?",
+    // "Qnon",
+    // "RMangez-vous halal ?",
+    // "Qje suis plus entrée froide",
+    // "RVous êtes plus:\n- Plats chaud\n- Entrée froide",
+    // "QJe voudrais une idée gourmande",
     "RBonjour, je suis Hambot ! L'assistant virtuel de Fleury Michon, comment puis-je vous aider ?\n\n- J'ai une question\n- J'ai une réclamation\n- Je voudrais une idée gourmande\n- Je voudrais postuler à un emploi",
   ];
   final ScrollController _scrollController = ScrollController();
@@ -103,26 +103,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String entireQuestion(String question) {
     String finl = "";
-    if (question.contains("ai")) {
-      if (question.contains("question")) {
-        finl = "Quelle est votre question ?";
-      } else if (question.contains("reclamation") ||
-          question.contains("réclamation")) {
-        finl =
-            "Vous êtes redirigé vers ce site: https://www.fleurymichon.fr/contact";
-      }
-    }
     if (question.contains("postul") &&
         (question.contains("emploi") ||
             question.contains("travail") ||
             question.contains("job"))) {
-      finl = "https://www.fleurymichon.fr/offre";
+      finl =
+          "Bien évidement, pour postuler cliquez sur ce lien: https://www.fleurymichon.fr/offre";
     }
     if (question.contains("depuis quand") &&
         question.contains("conservateur") &&
         (question.contains("sans") ||
             question.contains("aucun") ||
-            question.contains("retir"))) {
+            question.contains("retir") ||
+            (question.contains('utili') && question.contains('plus')))) {
       finl =
           "Depuis 20 ans, nous veillons à ne pas ajouter de conservateurs dans nos plats cuisinés dès que les recettes nous le permettent. Mais c'est depuis 2002 que nous travaillons avec nos fournisseurs pour supprimer les conservateurs dans les ingrédients. Aujourd'hui 94% de nos plats cuisinés ne contiennent aucun conservateur. Ne soyez pas timide, allez plutôt les tester par vous-mêmes.";
     }
@@ -137,7 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String getAnswer(String question) {
     String tmp = question.toLowerCase();
-    String result = "";
+    String result = entireQuestion(tmp);
+    if (result != "") return (result);
     if (isReclam == 1) {
       isReclam = 2;
       return ("Merci, maintenant il me faudrait votre address mail");
@@ -148,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (isReclam == 3) {
       isReclam = 0;
-      return ("Fini\nVous recevrez une réponse sous 3j");
+      return ("Merci pour votre temps, sachez que vos données seront utilisé uniquement pour vous recontacter à ce sujet et resteront privées.\nVous recevrez une réponse sous 2 à 3 jours");
     }
     if (tmp.contains("ai")) {
       if (tmp.contains("question")) {
@@ -195,7 +189,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //   result = "Bonjour, en quoi puis-je vous aider ?";
     // }
     return (result == ""
-        ? "Désolé je n'ai pas compris, veuillez répéter"
+        ? (tmp.contains("merci")
+            ? "De rien, avec plaisir !"
+            : "Désolé je n'ai pas compris, veuillez répéter")
         : result);
   }
 
@@ -236,13 +232,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     'HamBot',
                     style: TextStyle(
                         fontSize: 18,
-                        color: Color.fromRGBO(140, 60, 0, 1),
+                        color: Colors.white,
                         fontWeight: FontWeight.bold),
                   ),
                 ),
                 ..._getTexts(allQandA),
                 const SizedBox(
-                  height: 60,
+                  height: 68,
                 )
               ],
             )),
@@ -253,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Row(
             children: [
               Container(
-                height: 50,
+                height: 60,
                 width: MediaQuery.of(context).size.width - 70,
                 alignment: Alignment.center,
                 margin: const EdgeInsets.only(left: 5),
@@ -309,18 +305,52 @@ bool isItLink(String maybeLink) {
   return (false);
 }
 
+List<String> getStringList(String withLink) {
+  List<String> result = [];
+  String str = "";
+  String link = "";
+  int rank = 0;
+  bool lock = false;
+  for (rank = 0; rank < withLink.length; rank++) {
+    if (withLink[rank] == 'h' &&
+        withLink[rank + 1] == 't' &&
+        withLink[rank + 2] == 't' &&
+        withLink[rank + 3] == 'p') lock = true;
+    if (lock) {
+      if (withLink[rank] == ' ') {
+        lock = false;
+      } else {
+        link += withLink[rank];
+      }
+    } else {
+      str += withLink[rank];
+    }
+  }
+  result = [str, link];
+  return (result);
+}
+
 List<Widget> _getTexts(allQandA) {
   List<Widget> allQandATextFields = [];
   bool isLink = false;
+  List<String> tmp = [];
   for (int i = allQandA.length - 1; i >= 0; i--) {
     isLink = isItLink(allQandA[i]);
-    allQandATextFields.add(
-      AllQandATextFields(
-        actQandA: allQandA[i].substring(1, allQandA[i].length),
-        isAnswer: allQandA[i][0] == 'R',
-        isLink: isLink,
-      ),
-    );
+    if (isLink) {
+      tmp = getStringList(allQandA[i].substring(1, allQandA[i].length));
+      allQandATextFields.add(
+          AllQandATextFields(actQandA: tmp[0], isAnswer: true, isLink: false));
+      allQandATextFields.add(
+          AllQandATextFields(actQandA: tmp[1], isAnswer: true, isLink: true));
+    } else {
+      allQandATextFields.add(
+        AllQandATextFields(
+          actQandA: allQandA[i].substring(1, allQandA[i].length),
+          isAnswer: allQandA[i][0] == 'R',
+          isLink: isLink,
+        ),
+      );
+    }
   }
   return allQandATextFields;
 }
