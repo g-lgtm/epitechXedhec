@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -294,6 +296,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+void _launchURL(url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
 bool isItLink(String maybeLink) {
   if (maybeLink.contains("http")) return (true);
   return (false);
@@ -301,12 +311,14 @@ bool isItLink(String maybeLink) {
 
 List<Widget> _getTexts(allQandA) {
   List<Widget> allQandATextFields = [];
+  bool isLink = false;
   for (int i = allQandA.length - 1; i >= 0; i--) {
+    isLink = isItLink(allQandA[i]);
     allQandATextFields.add(
       AllQandATextFields(
         actQandA: allQandA[i].substring(1, allQandA[i].length),
         isAnswer: allQandA[i][0] == 'R',
-        isLink: isItLink(allQandA[i]),
+        isLink: isLink,
       ),
     );
   }
@@ -347,14 +359,27 @@ class AllQandATextFields extends StatelessWidget {
           padding: isAnswer
               ? const EdgeInsets.fromLTRB(10, 5, 10, 5)
               : const EdgeInsets.fromLTRB(0, 5, 0, 5),
-          child: Container(
-            child: Text(
-              isAnswer ? actQandA : '',
-              style: TextStyle(color: isLink ? Colors.blue : Colors.black),
-            ),
-            padding: const EdgeInsets.all(8),
-            decoration: getBox(isAnswer),
-          ),
+          child: isLink
+              ? Container(
+                  decoration: getBox(isAnswer),
+                  child: TextButton(
+                    onPressed: () {
+                      _launchURL(actQandA);
+                    },
+                    child: Text(
+                      isAnswer ? actQandA : '',
+                      style: const TextStyle(color: Colors.blue),
+                    ),
+                  ))
+              : Container(
+                  child: Text(
+                    isAnswer ? actQandA : '',
+                    style:
+                        TextStyle(color: isLink ? Colors.blue : Colors.black),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  decoration: getBox(isAnswer),
+                ),
           alignment: Alignment.centerLeft,
         ),
         Container(
