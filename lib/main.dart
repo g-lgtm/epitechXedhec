@@ -37,19 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String _lastWords = '';
   bool myLock = false;
   int isReclam = 0;
+  int isClassic = 0;
   static List<String> allQandA = [
-    // "Rhttps://www.fleurymichon.fr/manger-mieux/recettes/salade-de-poulet-cesar-ou-filet-de-poulet",
-    // "RJe vous propose une salade césar avec des émincées de poulet grillées Fleury Michon",
-    // "Qje dirais légumes",
-    // "RVous êtes plus: \n- Légume\n- Féculents\n- Les deux",
-    // "RUne dernière question",
-    // "QPoulet",
-    // "RVous êtes plus poulet ou dinde ?",
-    // "Qnon",
-    // "RMangez-vous halal ?",
-    // "Qje suis plus entrée froide",
-    // "RVous êtes plus:\n- Plats chaud\n- Entrée froide",
-    // "QJe voudrais une idée gourmande",
     "RBonjour, je suis Hambot ! L'assistant virtuel de Fleury Michon, comment puis-je vous aider ?\n\n- J'ai une question\n- J'ai une réclamation\n- Je voudrais une idée gourmande\n- Je voudrais postuler à un emploi",
   ];
   final ScrollController _scrollController = ScrollController();
@@ -63,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _initSpeech() async {
-    // _speechEnabled = await _speechToText.initialize();
+    _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
 
@@ -125,6 +114,12 @@ class _MyHomePageState extends State<MyHomePage> {
             "Il est possible de s'habituer progressivement à manger moins salé en jouant avec les épices (poivre, curry, curcuma, clous de girofle...) et les herbes aromatiques (thym, ciboulette...). Et pour être sûr de ne pas dépasser la juste dose, nous vous conseillons de saler en fin de cuisson plutôt qu'au début ! Ces efforts paieront rapidement car il suffit de 3 semaines pour que les papilles s'habituent à un goût moins salé, juste le temps pour elles de se regénérer.";
       }
     }
+    if (question.contains("voudrai") &&
+        (question.contains("idée") || question.contains("idee")) &&
+        question.contains("gourman")) {
+      isClassic = 1;
+      finl = "Vous êtes plus:\n- Plats chaud\n- Entrée froide";
+    }
     return (finl);
   }
 
@@ -132,6 +127,22 @@ class _MyHomePageState extends State<MyHomePage> {
     String tmp = question.toLowerCase();
     String result = entireQuestion(tmp);
     if (result != "") return (result);
+    if (isClassic == 1 && tmp.contains("froid")) {
+      isClassic = 2;
+      return ("Mangez-vous halal ?");
+    }
+    if (isClassic == 2) {
+      isClassic = 3;
+      return ("Vous êtes plus poulet ou dinde ?");
+    }
+    if (isClassic == 3 && tmp.contains("poulet")) {
+      isClassic = 4;
+      return ("Une dernière question\nVous êtes plus:\n- Légumes\n- Féculents\n- Les deux");
+    }
+    if (isClassic == 4 && (tmp.contains("legume") || tmp.contains("légume"))) {
+      isClassic = 0;
+      return ("Je vous propose une salade césar avec des émincées de poulet grillées Fleury Michon https://www.fleurymichon.fr/manger-mieux/recettes/salade-de-poulet-cesar-ou-filet-de-poulet");
+    }
     if (isReclam == 1) {
       isReclam = 2;
       return ("Merci, maintenant il me faudrait votre address mail");
@@ -159,35 +170,6 @@ class _MyHomePageState extends State<MyHomePage> {
             tmp.contains("job"))) {
       result = "https://www.fleurymichon.fr/offre";
     }
-    // if (result != "") return result;
-    // if (tmp == "oui") result = "fi";
-    // if (tmp == "aide" || (tmp.contains("j") && tmp.contains("aide"))) {
-    //   result = "Aide:\nPoser vos questions en les tapant / dictant";
-    // }
-    // if (tmp.contains("respect") || tmp.contains("souci")) {
-    //   if (tmp.contains("anima")) {
-    //     result =
-    //         "La priorité numéro 1 de nos équipes est de les traiter avec respect.";
-    //   }
-    //   if (tmp.contains("planète") ||
-    //       tmp.contains("planete") ||
-    //       tmp.contains("environ")) {
-    //     result =
-    //         "Bien évidemment, notre environnement doit être préservé à tout prix !";
-    //   }
-    // }
-    // if (tmp.contains("périmé") ||
-    //     tmp.contains("perime") ||
-    //     tmp.contains("peremption")) {
-    //   result =
-    //       "Un produit périmé ? regarder notre charte des produits \"dépassé\" pour en savoir plus sur comment les dlc sont établies !";
-    // }
-    // if (tmp.contains("salut") ||
-    //     tmp.contains("bonjour") ||
-    //     tmp == "yo" ||
-    //     tmp.contains("yo ")) {
-    //   result = "Bonjour, en quoi puis-je vous aider ?";
-    // }
     return (result == ""
         ? (tmp.contains("merci")
             ? "De rien, avec plaisir !"
